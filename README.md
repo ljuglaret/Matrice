@@ -1,6 +1,7 @@
 ## Matrices
 
-Somme sur une matrice
+Somme et produit de deux matrices.   
+Ces fonctions sont valides seulement lorsque les dimensions sont correctes.   
 
 ## Utilisation
 
@@ -35,4 +36,6 @@ matr5 = Matrice [[1,2],[3,4],[5,6]]
 p = produit matr3 matr4 
 -- Just (Matrice [[32,40],[45,58]])
 
+p2 = produit matr3 matr3
+-- Nothing
 ```
