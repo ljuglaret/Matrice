@@ -1,4 +1,4 @@
-module Matrice exposing (Matrice , somme, transposee,produit)
+module Matrice exposing (Matrice , somme, transposee,produit,d,matr1)
 
 {-| 
 
@@ -6,7 +6,7 @@ module Matrice exposing (Matrice , somme, transposee,produit)
 @docs Matrice
 
 # Fonctions
-@docs somme, transposee, produit
+@docs somme, transposee, produit,d
 
 -}
 
@@ -31,11 +31,10 @@ tailleMatriceRect (Matrice a) =
 
 {-|-}
 tailleMatriceRectTranspo : Matrice number -> Maybe(Int,Int) 
-tailleMatriceRectTranspo m = 
-    case (tailleMatriceRect m) of 
-        Just x -> Just (Tuple.second x, Tuple.first x)
-        Nothing -> Nothing
-
+tailleMatriceRectTranspo m = (tailleMatriceRect m)  |>
+                                (Maybe.andThen(\x->
+                                    Just (Tuple.second x, Tuple.first x)))
+   
 {-|-}
 matriceRectMemeTailles : Matrice number -> Matrice number -> Bool
 matriceRectMemeTailles (Matrice a) (Matrice b) =
@@ -78,6 +77,16 @@ transposee (Matrice a) =
 produitScalaire : List number -> List number -> number
 produitScalaire a b = List.sum (List.map2(*) a b )
 
+
+{-|-}
+d : Matrice number -> List(List number)
+d (Matrice l ) = l
+
+{-|-}
+facto : Maybe (Int,Int) ->  Maybe (Int,Int) -> Maybe ((Int,Int)  , (Int,Int) )
+facto a b = a|> Maybe.andThen(
+                    \ma -> b|> Maybe.andThen(
+                        \mb -> Just(ma,mb)))
 {-|-}
 produit  : Matrice number ->  Matrice number  -> Maybe (Matrice number) 
 produit l1 l2 = 
@@ -85,19 +94,21 @@ produit l1 l2 =
        
         l2t = transposee l2 
     in
-        case ((tailleMatriceRect l1), (tailleMatriceRect l2))of 
-            (Just taille1, Just taille2) -> 
+        (facto (tailleMatriceRect l1) (tailleMatriceRect l2))|>
+            Maybe.andThen(\(taille1, taille2) -> 
                 if (Tuple.second taille1 == Tuple.first taille2 )
-                then
-                    case (l1,l2t) of
-                        (Matrice ml1, Just (Matrice ml2t)) -> 
-                            Just (Matrice (
+                then  
+                    l2t |> Maybe.andThen
+                            (\ml2t->
+                                Just (Matrice (
                                     List.map(\elt1 ->
                                         (List.map(\elt2 -> 
-                                            produitScalaire elt1 elt2) ml2t))ml1)
+                                            produitScalaire elt1 elt2) (d ml2t)))(d l1))
                                 )
-                        
-                        _ -> Nothing
-                else  Nothing
-            _ -> Nothing
-      
+                            )     
+                else Nothing)
+            
+
+matr1 : Matrice number 
+matr1 = Matrice [[1,2],[3,4]]
+
